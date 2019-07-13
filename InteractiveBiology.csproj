@@ -51,8 +51,11 @@
   <ItemGroup>
     <Compile Include="Controller.cs" />
     <Compile Include="IAnimal.cs" />
+    <Compile Include="IFood.cs" />
+    <Compile Include="Plant.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Squirrel.cs" />
+    <Compile Include="StatsContainer.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

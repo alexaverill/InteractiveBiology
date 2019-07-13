@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 public class Controller : Spatial
 {
+    [Export]
+    public NodePath StatsContainerPath;
     private List<Spatial> targets = new List<Spatial>();
     public override void _Ready()
     {
@@ -15,6 +17,8 @@ public class Controller : Spatial
         }
         var s = (Squirrel) GetNode<RigidBody>("Squirrel");
         s.setTargets(targets);
+        var stat = (StatsContainer) GetNode(StatsContainerPath);
+        stat.setAnimalReference(s);
     }
 
 
