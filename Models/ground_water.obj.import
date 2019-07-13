@@ -1,0 +1,18 @@
+[remap]
+
+importer="wavefront_obj"
+type="Mesh"
+path="res://.import/ground_water.obj-5ebb34417b6143fbb73e63f67ed15c34.mesh"
+
+[deps]
+
+files=[ "res://.import/ground_water.obj-5ebb34417b6143fbb73e63f67ed15c34.mesh" ]
+
+source_file="res://Models/ground_water.obj"
+dest_files=[ "res://.import/ground_water.obj-5ebb34417b6143fbb73e63f67ed15c34.mesh", "res://.import/ground_water.obj-5ebb34417b6143fbb73e63f67ed15c34.mesh" ]
+
+[params]
+
+generate_tangents=true
+scale_mesh=Vector3( 1, 1, 1 )
+optimize_mesh=true

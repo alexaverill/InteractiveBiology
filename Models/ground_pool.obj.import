@@ -1,0 +1,18 @@
+[remap]
+
+importer="wavefront_obj"
+type="Mesh"
+path="res://.import/ground_pool.obj-d7593bafe04afa48c73a6722bf098d60.mesh"
+
+[deps]
+
+files=[ "res://.import/ground_pool.obj-d7593bafe04afa48c73a6722bf098d60.mesh" ]
+
+source_file="res://Models/ground_pool.obj"
+dest_files=[ "res://.import/ground_pool.obj-d7593bafe04afa48c73a6722bf098d60.mesh", "res://.import/ground_pool.obj-d7593bafe04afa48c73a6722bf098d60.mesh" ]
+
+[params]
+
+generate_tangents=true
+scale_mesh=Vector3( 1, 1, 1 )
+optimize_mesh=true

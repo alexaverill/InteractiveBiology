@@ -1,0 +1,18 @@
+[remap]
+
+importer="wavefront_obj"
+type="Mesh"
+path="res://.import/ground_river_entrance.obj-2f7878e7038733d2c9f1dfaaf5c1d80b.mesh"
+
+[deps]
+
+files=[ "res://.import/ground_river_entrance.obj-2f7878e7038733d2c9f1dfaaf5c1d80b.mesh" ]
+
+source_file="res://Models/ground_river_entrance.obj"
+dest_files=[ "res://.import/ground_river_entrance.obj-2f7878e7038733d2c9f1dfaaf5c1d80b.mesh", "res://.import/ground_river_entrance.obj-2f7878e7038733d2c9f1dfaaf5c1d80b.mesh" ]
+
+[params]
+
+generate_tangents=true
+scale_mesh=Vector3( 1, 1, 1 )
+optimize_mesh=true
