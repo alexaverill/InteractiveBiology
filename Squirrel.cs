@@ -13,6 +13,8 @@ public class Squirrel : RigidBody, IAnimal
     public float vision { get; set; }
     private float timer = 0f;
     private int _health;
+    private Controller controller;
+    public event Action<Spatial> haveEaten;
     public int health { 
         get{
             return _health;
@@ -26,14 +28,15 @@ public class Squirrel : RigidBody, IAnimal
         }
     }
 
-
+    internal void registerController(Controller _controller)
+    {
+        controller = _controller;
+    }
 
     private void die()
     {
         QueueFree();
     }
-
-    public List<Spatial> listOfTargets = new List<Spatial>();
     private float updateFrequency = 4f;
     private bool eating = false;
     private float hungerThreshold = 5; // value to start looking for food.
@@ -48,9 +51,9 @@ public class Squirrel : RigidBody, IAnimal
         
     }
 
-    internal void setTargets(List<Spatial> targets)
+    internal List<Spatial> getFoodTargets()
     {
-        listOfTargets = targets;
+        return controller.getFoodSources();
     }
 
     private void LookFollow(PhysicsDirectBodyState state, Transform currentTransform, Vector3 targetPos){
@@ -83,7 +86,7 @@ public class Squirrel : RigidBody, IAnimal
         }
         //determine what this animals priorty is;
         if(Hunger > hungerThreshold){
-            //currentState = AnimalState.Food;
+            currentState = AnimalState.Food;
             health --;
         }else{
             currentState = AnimalState.Explore;
@@ -96,8 +99,8 @@ public class Squirrel : RigidBody, IAnimal
         var distance = transform.origin.DistanceTo(targetVector);
         if(distance <=4.5f){
             if(targetRef !=null){
-                listOfTargets.Remove(targetRef);
-                targetRef.QueueFree();//simulate eating at the moment
+                GD.Print("Time To Eat!");
+                eat();
             }
             hasTarget = false;
         }
@@ -111,46 +114,52 @@ public class Squirrel : RigidBody, IAnimal
         if( currentState == AnimalState.Explore){
             targetRef = null;
             //an exploring animal will pick a direction and move towards it, it will be within the animals vision radius
-            float y = Transform.origin.y;
-            Random rand = new Random();
-            float x = (float)rand.NextDouble()* (float)vision*2;
-            float z = (float)rand.NextDouble()* (float)vision*2;
-            targetVector = new Vector3(x,y,z);
-            hasTarget = true;
+            CreateWanderTarget();
+        }else if(currentState == AnimalState.Food){
+            targetRef = null;
+            var foodTargets = getFoodTargets();
+            SearchForNearest(foodTargets);
+            if(targetRef == null){
+                CreateWanderTarget();
+            }else{
+                hasTarget = true;
+            }
         }
-        // if(listOfTargets.Count<0){
-        //     //randomly select a point to move.
-        //     return;
-        // }
-        // //look within sight to see if any targets are available.
-        // float maxDistance = vision;
-        // Spatial tempTarget = null;
-        // foreach(Spatial s in listOfTargets){
-        //     var dist = Transform.origin.DistanceTo(s.Transform.origin);
-        //     GD.Print(dist);
-        //     if (dist < maxDistance && dist > 6.0f){
-        //         maxDistance = dist;
-        //         tempTarget = s;
-        //     }
+     }
 
-        // }
-        // if(tempTarget != null){
-        //     target = tempTarget;
-        //     GD.Print(tempTarget.Name);
-        //     hasTarget = true;
-        //     return;
-        // }
-        // // if there are no targets found create a temporary target that is half to its total sight
-        // //target = Transform.origin; //+ new Vector3(5,4,5);
-        // hasTarget = true;
+    private void CreateWanderTarget()
+    {
+        float y = Transform.origin.y;
+        Random rand = new Random();
+        float x = (float)rand.NextDouble()* (float)vision*2;
+        float z = (float)rand.NextDouble()* (float)vision*2;
+        targetVector = new Vector3(x,y,z);
+        hasTarget = true;
+    }
 
-        
-
+    private void SearchForNearest(List<Spatial> foodTargets)
+    {
+        float currentClosest = 100;
+       foreach(Spatial s in foodTargets){
+           var distance = Transform.origin.DistanceTo(s.Transform.origin);
+           if (distance < 100 && distance < currentClosest){
+               currentClosest = distance;
+               targetRef = s;
+               targetVector = s.Transform.origin;
+           }
+       }
+       
     }
 
     public void eat()
     {
-        throw new NotImplementedException();
+        var plant = (Plant)targetRef;
+        var increase = plant.getEaten(); 
+        if(increase >0){
+            health += increase;
+        }else{
+            haveEaten.Invoke(targetRef);
+        }
     }
 
     public void drink()

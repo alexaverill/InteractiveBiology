@@ -16,10 +16,22 @@ public class Controller : Spatial
             }
         }
         var s = (Squirrel) GetNode<RigidBody>("Squirrel");
-        s.setTargets(targets);
+        s.registerController(this);
+        s.haveEaten += destroyEatenPlants;
         var stat = (StatsContainer) GetNode(StatsContainerPath);
         stat.setAnimalReference(s);
     }
 
+    private void destroyEatenPlants(Spatial obj)
+    {
+       if(targets.Contains(obj)){
+           targets.Remove(obj);
+           obj.QueueFree();
+       }
+    }
 
+    internal List<Spatial> getFoodSources()
+    {
+        return targets;
+    }
 }
