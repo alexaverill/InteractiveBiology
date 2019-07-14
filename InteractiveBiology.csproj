@@ -50,6 +50,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controller.cs" />
+    <Compile Include="GridMap.cs" />
     <Compile Include="IAnimal.cs" />
     <Compile Include="IFood.cs" />
     <Compile Include="Plant.cs" />

@@ -5,9 +5,13 @@ public class Controller : Spatial
 {
     [Export]
     public NodePath StatsContainerPath;
+    [Export]
+    public NodePath gridMapPath;
+    private GridMap enviroment;
     private List<Spatial> targets = new List<Spatial>();
     public override void _Ready()
     {
+        //enviroment = (GridMap) GetNode(gridMapPath);
         //get all targets!
         var nodes =GetChildren();
         foreach(Node n in nodes){
