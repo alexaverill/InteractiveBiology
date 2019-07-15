@@ -1,7 +1,7 @@
 using Godot;
 using System;
 using System.Collections.Generic;
-public class Squirrel : RigidBody, IAnimal
+public class Squirrel : RigidBody, IAnimal, IUpdatable
 {
     public float Hunger { get; set; }
     public float speed { get; set; }
@@ -13,6 +13,8 @@ public class Squirrel : RigidBody, IAnimal
     public float vision { get; set; }
     private float timer = 0f;
     private int _health;
+    private float stepSize = 8.5f;
+    private Vector2 bounds;
     private Controller controller;
     public event Action<Spatial> haveEaten;
     public int health { 
@@ -27,8 +29,15 @@ public class Squirrel : RigidBody, IAnimal
             _health = value;
         }
     }
+    public void setBounds(Vector2 _bounds){
+        bounds = _bounds;
+    }
+    public void setStepSize(float v)
+    {
+        stepSize = v;
+    }
 
-    internal void registerController(Controller _controller)
+    public void registerController(Controller _controller)
     {
         controller = _controller;
     }
@@ -50,63 +59,85 @@ public class Squirrel : RigidBody, IAnimal
         currentState = AnimalState.Explore;
         
     }
-
+    public void setPosition(Vector3 position){
+        this.SetTranslation(position);
+    }
     internal List<Spatial> getFoodTargets()
     {
         return controller.getFoodSources();
     }
-
-    private void LookFollow(PhysicsDirectBodyState state, Transform currentTransform, Vector3 targetPos){
-        var upDir = new Vector3(0,1,0);
-        var currentDir = currentTransform.basis.Xform(new Vector3(0,0,1));
-        var targetDir = (targetPos - currentTransform.origin).Normalized();
-        var rotationAngle = Mathf.Acos(currentDir.x) - Mathf.Acos(targetDir.x);
-        state.SetAngularVelocity(upDir*(rotationAngle/state.GetStep()));
-    }
-    public override void _IntegrateForces(PhysicsDirectBodyState state){
-        if(!hasTarget){
-            FindNearestTarget();
-        }else{
-            LookFollow(state, GetGlobalTransform(), targetVector);
-            MoveTowards(state, GetGlobalTransform());
-        }
-    }
-    public override void _PhysicsProcess(float delta){
-        update(delta);
-    }
-    private void update(float delta){
-        //
-        timer +=delta;
-        if(timer > updateFrequency){
-            //increment hunger and calculate health
-            Hunger++;
-            health -= (int)Hunger%10; // decrease health based on how hungry animal is.
-            timer =0f;
-        }
-         
-        //determine motivation;
-        if(Hunger> hungerThreshold){
-            currentState = AnimalState.Food;
-        }else{
-            currentState = AnimalState.Explore;
-        }
+    public void update(){
+        moveForward();
+        moveLeft();
     }
 
-    private void MoveTowards(PhysicsDirectBodyState state, Transform transform)
+    private void moveForward()
     {
-        var directionVec =( targetVector - transform.origin).Normalized();
-        var distance = transform.origin.DistanceTo(targetVector);
-        if(distance <=4.5f){
-            if(targetRef !=null){
-                GD.Print("Time To Eat!");
-                eat();
-            }
-            hasTarget = false;
+        var newX = Transform.origin.z + stepSize;
+        if(newX <= bounds.x){
+            SetTranslation(new Vector3(newX,Transform.origin.y,Transform.origin.z));
         }
-        //GD.Print("Distance in movetowards: "+transform.origin.DistanceTo(target));
-        //if within 4 units do action on target.
-        state.SetLinearVelocity(directionVec*speed);
     }
+
+    private void moveLeft()
+    {
+        var newZ = Transform.origin.z + stepSize;
+        if(newZ <= bounds.y){
+            SetTranslation(new Vector3(Transform.origin.x,Transform.origin.y,Transform.origin.z+stepSize));
+        }
+    }
+
+    // private void LookFollow(PhysicsDirectBodyState state, Transform currentTransform, Vector3 targetPos){
+    //     var upDir = new Vector3(0,1,0);
+    //     var currentDir = currentTransform.basis.Xform(new Vector3(0,0,1));
+    //     var targetDir = (targetPos - currentTransform.origin).Normalized();
+    //     var rotationAngle = Mathf.Acos(currentDir.x) - Mathf.Acos(targetDir.x);
+    //     state.SetAngularVelocity(upDir*(rotationAngle/state.GetStep()));
+    // }
+    // public override void _IntegrateForces(PhysicsDirectBodyState state){
+    //     if(!hasTarget){
+    //         FindNearestTarget();
+    //     }else{
+    //         LookFollow(state, GetGlobalTransform(), targetVector);
+    //         MoveTowards(state, GetGlobalTransform());
+    //     }
+    // }
+    // public override void _PhysicsProcess(float delta){
+    //     update(delta);
+    // }
+    // private void update(float delta){
+    //     //
+    //     timer +=delta;
+    //     if(timer > updateFrequency){
+    //         //increment hunger and calculate health
+    //         Hunger++;
+    //         health -= (int)Hunger%10; // decrease health based on how hungry animal is.
+    //         timer =0f;
+    //     }
+
+    //     //determine motivation;
+    //     if(Hunger> hungerThreshold){
+    //         currentState = AnimalState.Food;
+    //     }else{
+    //         currentState = AnimalState.Explore;
+    //     }
+    // }
+
+    // private void MoveTowards(PhysicsDirectBodyState state, Transform transform)
+    // {
+    //     var directionVec =( targetVector - transform.origin).Normalized();
+    //     var distance = transform.origin.DistanceTo(targetVector);
+    //     if(distance <=4.5f){
+    //         if(targetRef !=null){
+    //             GD.Print("Time To Eat!");
+    //             eat();
+    //         }
+    //         hasTarget = false;
+    //     }
+    //     //GD.Print("Distance in movetowards: "+transform.origin.DistanceTo(target));
+    //     //if within 4 units do action on target.
+    //     state.SetLinearVelocity(directionVec*speed);
+    // }
 
     public void FindNearestTarget()
     {

@@ -53,6 +53,7 @@
     <Compile Include="GridMap.cs" />
     <Compile Include="IAnimal.cs" />
     <Compile Include="IFood.cs" />
+    <Compile Include="IUpdatable.cs" />
     <Compile Include="Plant.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Squirrel.cs" />
