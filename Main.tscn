@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=2]
+[gd_scene load_steps=10 format=2]
 
 [ext_resource path="res://Controller.cs" type="Script" id=1]
 [ext_resource path="res://GroundGrid.meshlib" type="MeshLibrary" id=2]
@@ -6,9 +6,6 @@
 [ext_resource path="res://Squirrel.cs" type="Script" id=4]
 [ext_resource path="res://Plant.cs" type="Script" id=5]
 [ext_resource path="res://StatsContainer.cs" type="Script" id=6]
-
-[sub_resource type="Environment" id=1]
-ambient_light_color = Color( 1, 1, 1, 1 )
 
 [sub_resource type="CapsuleShape" id=2]
 radius = 1.17785
@@ -37,14 +34,11 @@ __meta__ = {
 mapWidth = 30
 mapHeight = 30
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
-environment = SubResource( 1 )
-
 [node name="Camera" type="Camera" parent="."]
 transform = Transform( 0.260192, 0.569571, -0.779673, 0.000128546, 0.807464, 0.589916, 0.965557, -0.153592, 0.210022, -1.0435, 43.1413, 48.036 )
 projection = 1
 current = true
-size = 90.0
+size = 100.0
 near = 0.01
 far = 8192.0
 
