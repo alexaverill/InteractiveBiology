@@ -11,6 +11,7 @@ public class Squirrel : RigidBody, IAnimal, IUpdatable
     public Vector3 targetVector { get; set; }
     private bool hasTarget= false;
     public float vision { get; set; }
+    private int[,] localMap;
     private float timer = 0f;
     private int _health;
     private float stepSize = 8.5f;
@@ -59,6 +60,9 @@ public class Squirrel : RigidBody, IAnimal, IUpdatable
         currentState = AnimalState.Explore;
         
     }
+    public void setMap(int[,] map){
+        localMap = map;//likely may switch this to pulling from controller.
+    }
     public void setPosition(Vector3 position){
         this.SetTranslation(position);
     }
@@ -67,8 +71,9 @@ public class Squirrel : RigidBody, IAnimal, IUpdatable
         return controller.getFoodSources();
     }
     public void update(){
-        moveForward();
-        moveLeft();
+        //calculate movement based on current state
+        // moveForward();
+        // moveLeft();
     }
 
     private void moveForward()
