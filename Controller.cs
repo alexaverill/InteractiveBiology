@@ -29,7 +29,7 @@ public class Controller : Spatial
         s.haveEaten += destroyEatenPlants;
         s.setStepSize(8.5f);
         s.setBounds(new Vector2(85,85));
-        s.setPosition(new Vector3(0,3,0)); //max is 85 on both axis
+        s.setPosition(10,10); //max is 85 on both axis
         ListOfUpdatable.Add(s);
         var stat = (StatsContainer) GetNode(StatsContainerPath);
         stat.setAnimalReference(s);

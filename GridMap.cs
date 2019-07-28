@@ -30,7 +30,8 @@ public class GridMap : Godot.GridMap
     System.Random random = new System.Random();
     public override void _Ready()
     {
-      
+      mapHeight *=3;//adjusting for actual cell size;
+      mapWidth *= 3; 
       var list = this.MeshLibrary.GetItemList();
       mapRepresentation = new int[mapHeight,mapWidth];
       GD.Print(list.Length);

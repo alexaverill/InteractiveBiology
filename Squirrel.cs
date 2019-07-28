@@ -63,8 +63,11 @@ public class Squirrel : RigidBody, IAnimal, IUpdatable
     public void setMap(int[,] map){
         localMap = map;//likely may switch this to pulling from controller.
     }
-    public void setPosition(Vector3 position){
-        this.SetTranslation(position);
+    public void setPosition(int x, int y){
+        //calculate position;
+        float xPos = x * stepSize;
+        float zPos = y * stepSize; 
+        this.SetTranslation(new Vector3(xPos,3,zPos));
     }
     internal List<Spatial> getFoodTargets()
     {
