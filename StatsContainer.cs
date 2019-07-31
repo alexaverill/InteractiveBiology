@@ -31,7 +31,7 @@ public class StatsContainer : GridContainer
 
         healthVal.Text = animal.health.ToString();
         hungerVal.Text = animal.Hunger.ToString();
-        targetVal.Text = animal.targetVector.ToString();
+        targetVal.Text = animal.target.ToString();
         stateVal.Text = animal.currentState.ToString();
     }
 

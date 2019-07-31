@@ -8,10 +8,11 @@ public class Squirrel : RigidBody, IAnimal, IUpdatable
     public Gender gender { get; set; }
     public AnimalState currentState { get; set; }
     public Spatial targetRef { get; set; }
-    public Vector3 targetVector { get; set; }
+    public Vector2 target { get; set; }
     private bool hasTarget= false;
     public float vision { get; set; }
-    private int[,] localMap;
+    private Vector2 mapPosition = new Vector2();
+    private Map localMap;
     private float timer = 0f;
     private int _health;
     private float stepSize = 8.5f;
@@ -47,7 +48,7 @@ public class Squirrel : RigidBody, IAnimal, IUpdatable
     {
         QueueFree();
     }
-    private float updateFrequency = 4f;
+
     private bool eating = false;
     private float hungerThreshold = 5; // value to start looking for food.
 
@@ -60,11 +61,13 @@ public class Squirrel : RigidBody, IAnimal, IUpdatable
         currentState = AnimalState.Explore;
         
     }
-    public void setMap(int[,] map){
-        localMap = map;//likely may switch this to pulling from controller.
+    public void setMap(Map _map){
+        localMap = _map;//likely may switch this to pulling from controller.
     }
     public void setPosition(int x, int y){
         //calculate position;
+        mapPosition.x = x;
+        mapPosition.y = y;
         float xPos = x * stepSize;
         float zPos = y * stepSize; 
         this.SetTranslation(new Vector3(xPos,3,zPos));
@@ -73,131 +76,85 @@ public class Squirrel : RigidBody, IAnimal, IUpdatable
     {
         return controller.getFoodSources();
     }
+    Queue<string> movements = new Queue<string>();
     public void update(){
-        //calculate movement based on current state
-        // moveForward();
-        // moveLeft();
-    }
-
-    private void moveForward()
-    {
-        var newX = Transform.origin.z + stepSize;
-        if(newX <= bounds.x){
-            SetTranslation(new Vector3(newX,Transform.origin.y,Transform.origin.z));
+        if(!hasTarget){
+            findTarget();
+            generateMoves();
+            hasTarget= true;
+        }
+        if(movements.Count>0){
+            string movement = movements.Dequeue();
+            DoMove(movement);
+        }else{
+            hasTarget = false;
         }
     }
 
-    private void moveLeft()
+    private void DoMove(string movement)
     {
-        var newZ = Transform.origin.z + stepSize;
-        if(newZ <= bounds.y){
-            SetTranslation(new Vector3(Transform.origin.x,Transform.origin.y,Transform.origin.z+stepSize));
+        GD.Print(mapPosition);
+        switch(movement){
+            case "right":
+                mapPosition.y ++;
+                break;
+            case "left":
+                mapPosition.y --;
+                break;
+            case "up":
+                mapPosition.x++;
+                break;
+            case "down":
+                mapPosition.x--;
+                break;
+            default:
+                break;
         }
+        move();
     }
 
-    // private void LookFollow(PhysicsDirectBodyState state, Transform currentTransform, Vector3 targetPos){
-    //     var upDir = new Vector3(0,1,0);
-    //     var currentDir = currentTransform.basis.Xform(new Vector3(0,0,1));
-    //     var targetDir = (targetPos - currentTransform.origin).Normalized();
-    //     var rotationAngle = Mathf.Acos(currentDir.x) - Mathf.Acos(targetDir.x);
-    //     state.SetAngularVelocity(upDir*(rotationAngle/state.GetStep()));
-    // }
-    // public override void _IntegrateForces(PhysicsDirectBodyState state){
-    //     if(!hasTarget){
-    //         FindNearestTarget();
-    //     }else{
-    //         LookFollow(state, GetGlobalTransform(), targetVector);
-    //         MoveTowards(state, GetGlobalTransform());
-    //     }
-    // }
-    // public override void _PhysicsProcess(float delta){
-    //     update(delta);
-    // }
-    // private void update(float delta){
-    //     //
-    //     timer +=delta;
-    //     if(timer > updateFrequency){
-    //         //increment hunger and calculate health
-    //         Hunger++;
-    //         health -= (int)Hunger%10; // decrease health based on how hungry animal is.
-    //         timer =0f;
-    //     }
-
-    //     //determine motivation;
-    //     if(Hunger> hungerThreshold){
-    //         currentState = AnimalState.Food;
-    //     }else{
-    //         currentState = AnimalState.Explore;
-    //     }
-    // }
-
-    // private void MoveTowards(PhysicsDirectBodyState state, Transform transform)
-    // {
-    //     var directionVec =( targetVector - transform.origin).Normalized();
-    //     var distance = transform.origin.DistanceTo(targetVector);
-    //     if(distance <=4.5f){
-    //         if(targetRef !=null){
-    //             GD.Print("Time To Eat!");
-    //             eat();
-    //         }
-    //         hasTarget = false;
-    //     }
-    //     //GD.Print("Distance in movetowards: "+transform.origin.DistanceTo(target));
-    //     //if within 4 units do action on target.
-    //     state.SetLinearVelocity(directionVec*speed);
-    // }
-
-    public void FindNearestTarget()
+    private void generateMoves()
     {
-        if( currentState == AnimalState.Explore){
-            targetRef = null;
-            //an exploring animal will pick a direction and move towards it, it will be within the animals vision radius
-            CreateWanderTarget();
-        }else if(currentState == AnimalState.Food){
-            targetRef = null;
-            var foodTargets = getFoodTargets();
-            SearchForNearest(foodTargets);
-            if(targetRef == null){
-                CreateWanderTarget();
-            }else{
-                hasTarget = true;
+       // if(target==null) return;
+       int xDiff = (int)Math.Abs(target.x - mapPosition.x);
+       int yDiff = (int)Math.Abs(target.y - mapPosition.y);
+        if(target.x>mapPosition.x){
+            for(int x =0;x<=xDiff;x++){        
+                movements.Enqueue("up");
+            }
+        }else{
+            for(int x =0;x<xDiff;x++){           
+                 movements.Enqueue("down");
             }
         }
-     }
-
-    private void CreateWanderTarget()
-    {
-        //current this causes the creature to wander in one circle
-        float y = Transform.origin.y;
-        float x = Transform.origin.x;
-        float z = Transform.origin.z;
-        //current z limits are -71 to 53. This will change once map is autogenerated.
-        //current x limits are -56 to 65
-        Random rand = new Random();
-        float xDir = (float)rand.NextDouble();
-        float zDir = (float) rand.NextDouble();
-        x += vision*xDir;
-        y += vision * zDir;
-        x = Mathf.Clamp(x,-56f, 65f);
-        y = Mathf.Clamp(y,-71f, 53f);
-        targetVector = new Vector3(x,y,z);
-        hasTarget = true;
+        if(target.y>mapPosition.y){
+            for(int x =0;x<=yDiff;x++){        
+                movements.Enqueue("right");
+            }
+        }else{
+            
+            for(int x =0;x<yDiff;x++){           
+                 movements.Enqueue("left");
+            }
+        }
     }
 
-    private void SearchForNearest(List<Spatial> foodTargets)
+    private void findTarget()
     {
-        float currentClosest = 100;
-       foreach(Spatial s in foodTargets){
-           var distance = Transform.origin.DistanceTo(s.Transform.origin);
-           if (distance < 100 && distance < currentClosest){
-               currentClosest = distance;
-               targetRef = s;
-               targetVector = s.Transform.origin;
-           }
-       }
-       
+       // target = new Vector2(0,0);
+        if(currentState == AnimalState.Explore){
+            //pick random target;
+            System.Random rand = new System.Random();
+            int xVal =(int)((float)rand.NextDouble() * localMap.Height);
+            int yVal = (int)((float)rand.NextDouble() * localMap.Width);
+            
+            target = new Vector2(xVal, yVal);
+            GD.Print(target);
+        }
     }
-
+    private void move(){
+        SetTranslation(new Vector3(mapPosition.x*stepSize, Transform.origin.y, mapPosition.y*stepSize));
+    }
     public void eat()
     {
         eating = true;

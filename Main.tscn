@@ -40,9 +40,6 @@ script = ExtResource( 3 )
 __meta__ = {
 "_editor_clip_": 0
 }
-mapWidth = 10
-mapHeight = 10
-lakePercent = 0.98
 
 [node name="Camera" type="Camera" parent="."]
 transform = Transform( 0.171759, 0.581132, -0.795477, 0.000128546, 0.807464, 0.589917, 0.985139, -0.101426, 0.138614, -1.0435, 43.1413, 48.036 )

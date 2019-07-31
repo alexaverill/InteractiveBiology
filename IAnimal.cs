@@ -18,9 +18,9 @@ public  interface IAnimal: IFood
      Gender gender { get; set;}
      AnimalState currentState {get;set;}
      Spatial targetRef { get; set;}
-     Vector3 targetVector {get;set;}
+     Vector2 target {get;set;}
      float vision {get;set;}
-     void FindNearestTarget();
+     //void FindNearestTarget();
      void eat();
      void drink();
 }

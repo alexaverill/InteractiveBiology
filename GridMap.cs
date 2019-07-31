@@ -1,16 +1,6 @@
 using Godot;
 using System;
-
-public class GridMap : Godot.GridMap
-{
-    [Export]
-    public int mapWidth = 20;
-    
-    [Export]
-    public int mapHeight = 20;
-    [Export]
-    public double lakePercent = 0.9;
-    private enum TileMap{
+public enum TileMap{
       ground = 0,
       river = 1,
       waterEdge = 2,
@@ -19,39 +9,36 @@ public class GridMap : Godot.GridMap
       riverEnd = 5,
       waterCorner=6
       
-    }
-    private int[,] mapRepresentation;
-    public int[,] Map{
-      get{return mapRepresentation;}
-    }
+}
+public class GridMap : Godot.GridMap
+{
+
     private float timer = 0f;
     private int xPos = 0;
     private bool DEBUG = true;
     System.Random random = new System.Random();
-    public override void _Ready()
-    {
-      // mapHeight *=3;//adjusting for actual cell size;
-      // mapWidth *= 3; 
-      var list = this.MeshLibrary.GetItemList();
-      mapRepresentation = new int[mapHeight,mapWidth];
-      GD.Print(list.Length);
-      Clear();
-      generateMap();
+    private Map _map;
+    public Map EnviromentMap{
+      get{ return _map;}
+      set{
+        _map = value;
+        resetGridMap();
+      }
+
     }
-    private void generateMap(){
-      
-        for(int x =0; x<mapHeight; x++){
-          
-          for(int y=0; y<mapWidth; y++){
-            var cellType = 0;
-            if(random.NextDouble()>lakePercent){
-                cellType = (int)TileMap.lake;
-            }
-            mapRepresentation[x,y] = cellType;
-            SetCellItem(x*3,0,y*3,cellType);
-         }
+    private void resetGridMap(){
+      for(int x=0;x<EnviromentMap.Height; x++){
+        for(int y=0; y<EnviromentMap.Width; y++){
+          SetCellItem(x*3,0,y*3,EnviromentMap.MapRepresentation[x,y]);
+        }
       }
     }
+    public override void _Ready()
+    { 
+      Clear();
+
+    }
+
     private bool runOnce = true;
     public override void _Process(float delta){
         // timer += delta;

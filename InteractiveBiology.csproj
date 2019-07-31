@@ -51,6 +51,7 @@
   <ItemGroup>
     <Compile Include="Controller.cs" />
     <Compile Include="GridMap.cs" />
+    <Compile Include="Map.cs" />
     <Compile Include="IAnimal.cs" />
     <Compile Include="IFood.cs" />
     <Compile Include="IUpdatable.cs" />
