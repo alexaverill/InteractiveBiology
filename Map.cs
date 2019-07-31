@@ -35,7 +35,7 @@ public class Map{
         
         for(int x=0; x<Height; x++){
             for(int y=0; y<Width; y++){
-                if(rand.NextDouble()>.25){
+                if(rand.NextDouble()>.95){ //TODO convert to configurable value
                     currentMap[x,y] = (int)TileMap.food;
                 }else{
                     currentMap[x,y] =(int)TileMap.ground;

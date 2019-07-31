@@ -89,7 +89,6 @@ public class Squirrel : RigidBody, IAnimal, IUpdatable
 
     private void DoMove(string movement)
     {
-        GD.Print(mapPosition);
         switch(movement){
             case "right":
                 mapPosition.y ++;
