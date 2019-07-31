@@ -17,17 +17,9 @@ public class Controller : Spatial
 
     public override void _Ready()
     {
-        Map currentMap = new Map(10,10);
+        Map currentMap = new Map(10,10,1);
         enviroment = (GridMap) GetNode(gridMapPath);
-        enviroment.EnviromentMap = currentMap;
-        //get all targets!
-        var nodes =GetChildren();
-        foreach(Node n in nodes){
-            if(n.Name.Contains("target")){
-                targets.Add((Spatial)n);
-            }
-        }
-        
+        enviroment.EnviromentMap = currentMap;  
 
 
         //TODO: Clean up this mess
@@ -57,10 +49,5 @@ public class Controller : Spatial
            targets.Remove(obj);
            obj.QueueFree();
        }
-    }
-
-    internal List<Spatial> getFoodSources()
-    {
-        return targets;
     }
 }

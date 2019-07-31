@@ -1,3 +1,14 @@
+public enum TileMap{
+      ground = 0,
+      river = 1,
+      waterEdge = 2,
+      waterMiddle = 3,
+      lake = 4,
+      riverEnd = 5,
+      waterCorner=6,
+      food = 7
+      
+}
 public class Map{
     private int _height;
     public int Height{
@@ -7,13 +18,16 @@ public class Map{
     public int Width{
         get{return _width;}
     }
+    private float foodPercentage;
     private int[,] currentMap;
     public int[,] MapRepresentation{
         get { return currentMap;}
     }
-    public Map(int width, int height){
+    System.Random rand = new System.Random();
+    public Map(int width, int height, int _foodPercentage){
         _width = width;
         _height = height;
+        foodPercentage = _foodPercentage/100; //convert to normalized value between 0 and 1;
         currentMap = new int[_height,_width];
         generateMap();
     }
@@ -21,7 +35,11 @@ public class Map{
         
         for(int x=0; x<Height; x++){
             for(int y=0; y<Width; y++){
-                currentMap[x,y] =0;
+                if(rand.NextDouble()>.25){
+                    currentMap[x,y] = (int)TileMap.food;
+                }else{
+                    currentMap[x,y] =(int)TileMap.ground;
+                }
             }
         }
     }

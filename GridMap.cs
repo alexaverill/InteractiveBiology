@@ -1,15 +1,5 @@
 using Godot;
 using System;
-public enum TileMap{
-      ground = 0,
-      river = 1,
-      waterEdge = 2,
-      waterMiddle = 3,
-      lake = 4,
-      riverEnd = 5,
-      waterCorner=6
-      
-}
 public class GridMap : Godot.GridMap
 {
 
@@ -29,7 +19,12 @@ public class GridMap : Godot.GridMap
     private void resetGridMap(){
       for(int x=0;x<EnviromentMap.Height; x++){
         for(int y=0; y<EnviromentMap.Width; y++){
-          SetCellItem(x*3,0,y*3,EnviromentMap.MapRepresentation[x,y]);
+          int tileVal = EnviromentMap.MapRepresentation[x,y];
+          if(tileVal == (int)TileMap.food){
+              SetCellItem(x*3,1,y*3, tileVal);
+              tileVal = (int)TileMap.ground;
+          }
+          SetCellItem(x*3,0,y*3,tileVal);
         }
       }
     }

@@ -72,10 +72,6 @@ public class Squirrel : RigidBody, IAnimal, IUpdatable
         float zPos = y * stepSize; 
         this.SetTranslation(new Vector3(xPos,3,zPos));
     }
-    internal List<Spatial> getFoodTargets()
-    {
-        return controller.getFoodSources();
-    }
     Queue<string> movements = new Queue<string>();
     public void update(){
         if(!hasTarget){
