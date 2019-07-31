@@ -1,0 +1,18 @@
+[remap]
+
+importer="wavefront_obj"
+type="Mesh"
+path="res://.import/smallBush.obj-28bb18fcb4ce597d700b411d7fe1f843.mesh"
+
+[deps]
+
+files=[ "res://.import/smallBush.obj-28bb18fcb4ce597d700b411d7fe1f843.mesh" ]
+
+source_file="res://Models/smallBush.obj"
+dest_files=[ "res://.import/smallBush.obj-28bb18fcb4ce597d700b411d7fe1f843.mesh", "res://.import/smallBush.obj-28bb18fcb4ce597d700b411d7fe1f843.mesh" ]
+
+[params]
+
+generate_tangents=true
+scale_mesh=Vector3( 1, 1, 1 )
+optimize_mesh=true
