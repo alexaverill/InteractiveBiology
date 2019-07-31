@@ -4,6 +4,8 @@ using System.Collections.Generic;
 public class Controller : Spatial
 {
     [Export]
+    public float updateSpeed = 1;
+    [Export]
     public NodePath StatsContainerPath;
     [Export]
     public NodePath gridMapPath;
@@ -42,7 +44,7 @@ public class Controller : Spatial
     }
     public override void _Process(float delta){
         timer += delta;
-        if(timer > 1f){
+        if(timer > updateSpeed){
             foreach(IUpdatable u in ListOfUpdatable){
                 u.update();
             }
