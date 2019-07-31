@@ -30,8 +30,8 @@ public class GridMap : Godot.GridMap
     System.Random random = new System.Random();
     public override void _Ready()
     {
-      mapHeight *=3;//adjusting for actual cell size;
-      mapWidth *= 3; 
+      // mapHeight *=3;//adjusting for actual cell size;
+      // mapWidth *= 3; 
       var list = this.MeshLibrary.GetItemList();
       mapRepresentation = new int[mapHeight,mapWidth];
       GD.Print(list.Length);
@@ -40,15 +40,15 @@ public class GridMap : Godot.GridMap
     }
     private void generateMap(){
       
-        for(int x =0; x<mapHeight; x +=3){
+        for(int x =0; x<mapHeight; x++){
           
-          for(int y=0; y<mapWidth; y+=3){
+          for(int y=0; y<mapWidth; y++){
             var cellType = 0;
             if(random.NextDouble()>lakePercent){
                 cellType = (int)TileMap.lake;
             }
             mapRepresentation[x,y] = cellType;
-            SetCellItem(x,0,y,cellType);
+            SetCellItem(x*3,0,y*3,cellType);
          }
       }
     }

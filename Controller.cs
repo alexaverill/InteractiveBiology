@@ -15,7 +15,19 @@ public class Controller : Spatial
 
     public override void _Ready()
     {
-        //enviroment = (GridMap) GetNode(gridMapPath);
+        enviroment = (GridMap) GetNode(gridMapPath);
+        //encapsulate map into own class to save time and effort
+        var currentMap = enviroment.Map;
+        var arrayRows = enviroment.mapHeight;
+        var arrayCols = enviroment.mapWidth;
+        for(int x=0; x<arrayRows; x++){
+            string tmp ="";
+            for(int y =0; y<arrayCols; y++){
+                tmp += currentMap[x,y] +",";
+            }
+            GD.Print(tmp);
+            
+        }
         //get all targets!
         var nodes =GetChildren();
         foreach(Node n in nodes){
@@ -23,6 +35,9 @@ public class Controller : Spatial
                 targets.Add((Spatial)n);
             }
         }
+        
+
+
         //TODO: Clean up this mess
         var s = (Squirrel) GetNode<RigidBody>("Squirrel");
         s.registerController(this);
