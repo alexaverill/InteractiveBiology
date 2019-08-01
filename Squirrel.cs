@@ -58,7 +58,7 @@ public class Squirrel : RigidBody, IAnimal, IUpdatable
         vision = 50;//TODO: create a representation of the vision for debugging
         health = 100;
         Hunger = 0;
-        currentState = AnimalState.Explore;
+        currentState = AnimalState.Food;
         
     }
     public void setMap(Map _map){
@@ -75,6 +75,7 @@ public class Squirrel : RigidBody, IAnimal, IUpdatable
     Queue<string> movements = new Queue<string>();
     public void update(){
         if(!hasTarget){
+        //BreadthSearchTarget(mapPosition,TileMap.food);
             findTarget();
             generateMoves();
             hasTarget= true;
@@ -145,6 +146,27 @@ public class Squirrel : RigidBody, IAnimal, IUpdatable
             
             target = new Vector2(xVal, yVal);
             GD.Print(target);
+        }else if(currentState == AnimalState.Food){
+            BreadthSearchTarget(mapPosition,TileMap.food);
+        }
+    }
+    private void BreadthSearchTarget(Vector2 position, TileMap targetType){
+        Queue<Vector2> edges = new Queue<Vector2>();
+        edges.Enqueue(position);
+        List<Vector2> visited = new List<Vector2>(); // need to change to a dict
+        while(edges.Count>0){
+            Vector2 current = edges.Dequeue();
+            if(localMap.MapRepresentation[(int)current.x,(int)current.y]==(int)targetType){
+                GD.Print("Food Found at "+current);
+                target = current;
+                break;
+            }
+            foreach( var s in localMap.getNeighbors(current)){
+                if(!visited.Contains(s)){
+                    edges.Enqueue(s);
+                    visited.Add(s);
+                }
+            }
         }
     }
     private void move(){
