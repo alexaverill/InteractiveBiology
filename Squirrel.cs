@@ -58,7 +58,7 @@ public class Squirrel : RigidBody, IAnimal, IUpdatable
         vision = 50;//TODO: create a representation of the vision for debugging
         health = 100;
         Hunger = 0;
-        currentState = AnimalState.Food;
+        currentState = AnimalState.SearchForFood;
         
     }
     public void setMap(Map _map){
@@ -80,12 +80,31 @@ public class Squirrel : RigidBody, IAnimal, IUpdatable
             generateMoves();
             hasTarget= true;
         }
+        if(currentState == AnimalState.Eating){
+            eat();
+            return;
+        }
+        //Move Animal
         if(movements.Count>0){
             string movement = movements.Dequeue();
             DoMove(movement);
         }else{
-            hasTarget = false;
+            //arrived at target time to change state.
+            switch(currentState){
+                case AnimalState.Exploring:
+                    hasTarget = false;
+                    break;
+                case AnimalState.SearchForFood:
+                    currentState = AnimalState.Eating;
+                    break;
+                default:
+                    currentState = AnimalState.Exploring;
+                    hasTarget = false;
+                    break;
+            }
         }
+
+
     }
 
     private void DoMove(string movement)
@@ -115,7 +134,7 @@ public class Squirrel : RigidBody, IAnimal, IUpdatable
        int xDiff = (int)Math.Abs(target.x - mapPosition.x);
        int yDiff = (int)Math.Abs(target.y - mapPosition.y);
         if(target.x>mapPosition.x){
-            for(int x =0;x<=xDiff;x++){        
+            for(int x =0;x<xDiff;x++){        
                 movements.Enqueue("up");
             }
         }else{
@@ -124,7 +143,7 @@ public class Squirrel : RigidBody, IAnimal, IUpdatable
             }
         }
         if(target.y>mapPosition.y){
-            for(int x =0;x<=yDiff;x++){        
+            for(int x =0;x<yDiff;x++){        
                 movements.Enqueue("right");
             }
         }else{
@@ -138,7 +157,7 @@ public class Squirrel : RigidBody, IAnimal, IUpdatable
     private void findTarget()
     {
        // target = new Vector2(0,0);
-        if(currentState == AnimalState.Explore){
+        if(currentState == AnimalState.Exploring){
             //pick random target;
             System.Random rand = new System.Random();
             int xVal =(int)((float)rand.NextDouble() * localMap.Height);
@@ -146,7 +165,7 @@ public class Squirrel : RigidBody, IAnimal, IUpdatable
             
             target = new Vector2(xVal, yVal);
             GD.Print(target);
-        }else if(currentState == AnimalState.Food){
+        }else if(currentState == AnimalState.SearchForFood){
             BreadthSearchTarget(mapPosition,TileMap.food);
         }
     }
@@ -154,9 +173,10 @@ public class Squirrel : RigidBody, IAnimal, IUpdatable
         Queue<Vector2> edges = new Queue<Vector2>();
         edges.Enqueue(position);
         List<Vector2> visited = new List<Vector2>(); // need to change to a dict
+        
         while(edges.Count>0){
             Vector2 current = edges.Dequeue();
-            if(localMap.MapRepresentation[(int)current.x,(int)current.y]==(int)targetType){
+            if(localMap.FoodRepresentation[(int)current.x,(int)current.y]==(int)targetType){
                 GD.Print("Food Found at "+current);
                 target = current;
                 break;
@@ -175,13 +195,25 @@ public class Squirrel : RigidBody, IAnimal, IUpdatable
     public void eat()
     {
         eating = true;
-        var plant = (IFood)targetRef;
-        var increase = plant.getEaten(); 
-        if(increase >0 && Hunger >0){
-            Hunger -= increase;
+        //get a reference to current food;
+        Plant currentFood = (Plant)controller.GetPlant(mapPosition);
+        var foodVal = currentFood.getEaten();
+        if(foodVal > 0){
+            health += foodVal;
         }else{
             eating = false;
-            haveEaten.Invoke(targetRef);
+            GD.Print("Food is completely eaten. Time to change state");
+            changeState();
+        }
+    }
+
+    private void changeState()
+    {
+        // base state off of current wants and needs
+        if(Hunger > hungerThreshold){
+            currentState = AnimalState.SearchForFood;
+        }else{
+            currentState = AnimalState.Exploring;
         }
     }
 

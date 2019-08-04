@@ -1,4 +1,5 @@
 using Godot;
+using System;
 using System.Collections.Generic;
 public enum TileMap{
       ground = 0,
@@ -12,6 +13,7 @@ public enum TileMap{
       
 }
 public class Map{
+    public event Action<Vector2> foodCreated;
     private int _height;
     public int Height{
         get{ return _height;}
@@ -22,6 +24,10 @@ public class Map{
     }
     private float foodPercentage;
     private int[,] currentMap;
+    private int[,] foodMap;
+    public int[,] FoodRepresentation{
+        get{ return foodMap;}
+    }
     public int[,] MapRepresentation{
         get { return currentMap;}
     }
@@ -31,7 +37,8 @@ public class Map{
         _height = height;
         foodPercentage = _foodPercentage/100; //convert to normalized value between 0 and 1;
         currentMap = new int[_height,_width];
-        generateMap();
+        foodMap = new int[_height,_width];
+        generateBaseLevel();
     }
     public List<Vector2> getNeighbors(Vector2 position){
         List<Vector2> neighbors = new List<Vector2>();
@@ -50,16 +57,36 @@ public class Map{
         return neighbors;
 
     }
-    private void generateMap(){
+    public void SetMapItem(Vector2 position,TileMap tileType){
+        int x = (int)position.x;
+        int y = (int)position.y;
+        currentMap[x,y] = (int)tileType;
+    }
+    //Generates ground and water.
+    public void generateBaseLevel(){
         
         for(int x=0; x<Height; x++){
             for(int y=0; y<Width; y++){
+                currentMap[x,y] =(int)TileMap.ground;
+                // if(rand.NextDouble()>.95){ //TODO convert to configurable value
+                //     currentMap[x,y] = (int)TileMap.lake;
+                // }else{
+                //     currentMap[x,y] =(int)TileMap.ground;
+                // }
+            }
+        }
+    }
+    //Generate food layer
+    public void GenerateFoodLayer(){
+        for(int x=0; x<Height; x++){
+            for(int y=0; y<Width; y++){
                 if(rand.NextDouble()>.95){ //TODO convert to configurable value
-                    currentMap[x,y] = (int)TileMap.food;
+                    foodMap[x,y] = (int)TileMap.food;
+                    //foodCreated?.Invoke(new Vector2(x,y));
                 }else{
-                    currentMap[x,y] =(int)TileMap.ground;
+                    foodMap[x,y] =-1;
                 }
             }
         }
     }
-}
+} 

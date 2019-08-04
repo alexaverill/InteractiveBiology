@@ -16,7 +16,7 @@ public class GridMap : Godot.GridMap
       }
 
     }
-    private void resetGridMap(){
+    public void resetGridMap(){
       for(int x=0;x<EnviromentMap.Height; x++){
         for(int y=0; y<EnviromentMap.Width; y++){
           int tileVal = EnviromentMap.MapRepresentation[x,y];

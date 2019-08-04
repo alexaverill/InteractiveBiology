@@ -5,10 +5,13 @@ public enum Gender{
     Female
 };
 public enum AnimalState{
-    Food,
-    Water,
+    SearchForFood,
+    SearchForWater,
+    SearchForSex,
+    Eating,
+    Drinking,
+    Exploring,
     Sex,
-    Explore,
     Hide
 }
 public  interface IAnimal: IFood
