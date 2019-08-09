@@ -19,10 +19,12 @@ public class Controller : Spatial
     public Dictionary<Vector2, Plant> plants = new Dictionary<Vector2, Plant>();
     Map currentMap;
     PackedScene plantPrefab;
+    PackedScene SquirrelScene;
     bool foodCreated = false;
     public override void _Ready()
     {
         plantPrefab = (PackedScene)ResourceLoader.Load("res://Plant.tscn");
+        SquirrelScene = (PackedScene)ResourceLoader.Load("res://Squirrel.tscn");
         currentMap = new Map(10, 10, 1);
         //currentMap.foodCreated += handleFoodCreated;
         currentMap.GenerateFoodLayer();
@@ -34,16 +36,19 @@ public class Controller : Spatial
         enviroment = (GridMap)GetNode(gridMapPath);
         enviroment.EnviromentMap = currentMap;
 
-        //TODO: Clean up this mess
-        var s = (Squirrel)GetNode<RigidBody>("Squirrel");
-        s.registerController(this);
-        s.setStepSize(8.5f);
-        s.setBounds(new Vector2(85, 85));
-        s.setPosition(5, 5); //max is 85 on both axis
-        s.setMap(currentMap);
-        ListOfUpdatable.Add(s);
-        var stat = (StatsContainer)GetNode(StatsContainerPath);
-        stat.setAnimalReference(s);
+        for(var x = 0; x<1; x++){
+            var node = SquirrelScene.Instance();
+            AddChild(node);
+            var s = (Squirrel)node;
+            s.registerController(this);
+            s.setStepSize(8.5f);
+            s.setBounds(new Vector2(currentMap.Height*8.5f,currentMap.Width*8.5f));//max is 85 on both axis
+            s.setPosition(x, x); 
+            s.setMap(currentMap);
+            ListOfUpdatable.Add(s);
+        }
+        // var stat = (StatsContainer)GetNode(StatsContainerPath);
+        // stat.setAnimalReference(s);
     }
 
     private void PlaceFood(Vector2 vector2)
@@ -52,6 +57,7 @@ public class Controller : Spatial
         var node = (Spatial)plantPrefab.Instance();
         var p = (Plant)node;
         p.pos = vector2;
+        p.eaten += handleEaten;
         plants.Add(vector2,p);
         try{
             var parent = (Spatial)GetNode(PlantsParent);
@@ -62,27 +68,13 @@ public class Controller : Spatial
         //AddChild(plant);
     }
 
-    private void handleFoodCreated(Vector2 obj)
+    private void handleEaten(Vector2 obj)
     {
-
-        // var plant = (CSGMesh)plantPrefab.Instance();
-        // var p = (Plant) plant;
-        // p.position = obj;
-        //GetNode(PlantsParent).AddChild(plant);
-
-        //node.position = obj;
-        // Plant p = new Plant();
-        // p.position = obj;
-        // plants.Add(obj,p);
-        // p.eaten += handleFoodEaten;
-    }
-
-    private void handleFoodEaten(Vector2 obj)
-    {
-        GD.Print("Food Eaten");
-        currentMap.SetMapItem(obj, TileMap.ground);
-        enviroment.EnviromentMap = currentMap;
-        enviroment.resetGridMap();
+        currentMap.RemoveFoodItem(obj);
+        plants.Remove(obj);
+        foreach(IUpdatable i in ListOfUpdatable){
+            i.updateMap(currentMap);
+        }
     }
 
     public override void _Process(float delta)

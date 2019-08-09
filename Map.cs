@@ -76,6 +76,9 @@ public class Map{
             }
         }
     }
+    public void RemoveFoodItem(Vector2 position){
+        foodMap[(int)position.x,(int)position.y] = -1;
+    }
     //Generate food layer
     public void GenerateFoodLayer(){
         for(int x=0; x<Height; x++){

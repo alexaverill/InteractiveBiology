@@ -11,10 +11,13 @@ public class StatsContainer : GridContainer
     public NodePath targetValPath;
     [Export]
     public NodePath stateNodePath;
+    [Export]
+    public NodePath currentPosPath;
     private Label healthVal;
     private Label hungerVal;
     private Label targetVal;
     private Label stateVal;
+    private Label posVal;
     private IAnimal animal;
     public override void _Ready()
     {
@@ -22,6 +25,7 @@ public class StatsContainer : GridContainer
         hungerVal = (Label)GetNode(HungerValPath);
         targetVal = (Label)GetNode(targetValPath);
         stateVal = (Label)GetNode(stateNodePath);
+        posVal = (Label)GetNode(currentPosPath);
     }
     public void setAnimalReference(IAnimal _animal){
         animal = _animal;
@@ -33,6 +37,7 @@ public class StatsContainer : GridContainer
         hungerVal.Text = animal.Hunger.ToString();
         targetVal.Text = animal.target.ToString();
         stateVal.Text = animal.currentState.ToString();
+        posVal.Text = animal.mapPosition.ToString();
     }
 
 

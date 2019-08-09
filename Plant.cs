@@ -3,6 +3,7 @@ using System;
 
 public class Plant : Spatial, IFood
 {
+    public event Action<Vector2> eaten;
     private int _health;
     public int health
     {
@@ -47,7 +48,7 @@ public class Plant : Spatial, IFood
     {
         if (health <= 0)
         {
-
+            eaten.Invoke(pos);
             QueueFree();
             return 0; //todo destroy this and send an event.
         }
@@ -57,7 +58,7 @@ public class Plant : Spatial, IFood
 
     public override void _Ready()
     {
-        health = 10;
+        health = 2;
     }
     public override void _Process(float delta)
     {

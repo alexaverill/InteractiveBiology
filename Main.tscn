@@ -1,21 +1,15 @@
-[gd_scene load_steps=9 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://Controller.cs" type="Script" id=1]
 [ext_resource path="res://WorldLighting.tres" type="Environment" id=2]
 [ext_resource path="res://GroundGrid.meshlib" type="MeshLibrary" id=3]
 [ext_resource path="res://GridMap.cs" type="Script" id=4]
-[ext_resource path="res://Squirrel.cs" type="Script" id=5]
-[ext_resource path="res://StatsContainer.cs" type="Script" id=6]
-
-[sub_resource type="CapsuleShape" id=1]
-radius = 1.17785
-height = 3.13009
-
-[sub_resource type="CapsuleMesh" id=2]
+[ext_resource path="res://StatsContainer.cs" type="Script" id=5]
 
 [node name="Root" type="Spatial"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.950436, 0, 0.201964 )
 script = ExtResource( 1 )
+updateSpeed = 0.5
 StatsContainerPath = NodePath("../Root/GridContainer")
 PlantsParent = NodePath("PlantParent")
 gridMapPath = NodePath("../Root/GridMap")
@@ -43,31 +37,21 @@ size = 100.0
 near = 0.01
 far = 8192.0
 
-[node name="Squirrel" type="RigidBody" parent="."]
-editor/display_folded = true
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4, 0 )
-script = ExtResource( 5 )
-
-[node name="CollisionShape" type="CollisionShape" parent="Squirrel"]
-shape = SubResource( 1 )
-
-[node name="CSGMesh" type="CSGMesh" parent="Squirrel"]
-mesh = SubResource( 2 )
-
 [node name="GridContainer" type="GridContainer" parent="."]
 editor/display_folded = true
-margin_top = -0.663422
-margin_right = 94.0
-margin_bottom = 49.3366
-script = ExtResource( 6 )
+margin_top = -1.0
+margin_right = 100.0
+margin_bottom = 114.0
+script = ExtResource( 5 )
 HealthValPath = NodePath("../../Root/GridContainer/Cell/HealthVal")
 HungerValPath = NodePath("../../Root/GridContainer/Cell2/HungerVal")
 targetValPath = NodePath("../../Root/GridContainer/Cell3/TargetVal")
 stateNodePath = NodePath("../../Root/GridContainer/Cell4/Stateval")
+currentPosPath = NodePath("Cell5/TargetVal")
 
 [node name="Cell" type="HSplitContainer" parent="GridContainer"]
 editor/display_folded = true
-margin_right = 91.0
+margin_right = 103.0
 margin_bottom = 14.0
 
 [node name="Health" type="Label" parent="GridContainer/Cell"]
@@ -77,14 +61,14 @@ text = "Health"
 
 [node name="HealthVal" type="Label" parent="GridContainer/Cell"]
 margin_left = 54.0
-margin_right = 91.0
+margin_right = 103.0
 margin_bottom = 14.0
 text = "100"
 
 [node name="Cell2" type="HSplitContainer" parent="GridContainer"]
 editor/display_folded = true
 margin_top = 18.0
-margin_right = 91.0
+margin_right = 103.0
 margin_bottom = 32.0
 
 [node name="Health" type="Label" parent="GridContainer/Cell2"]
@@ -94,13 +78,13 @@ text = "Hunger:"
 
 [node name="HungerVal" type="Label" parent="GridContainer/Cell2"]
 margin_left = 62.0
-margin_right = 91.0
+margin_right = 103.0
 margin_bottom = 14.0
 text = "100"
 
 [node name="Cell3" type="HSplitContainer" parent="GridContainer"]
 margin_top = 36.0
-margin_right = 91.0
+margin_right = 103.0
 margin_bottom = 50.0
 
 [node name="Target" type="Label" parent="GridContainer/Cell3"]
@@ -110,14 +94,30 @@ text = "Target"
 
 [node name="TargetVal" type="Label" parent="GridContainer/Cell3"]
 margin_left = 51.0
-margin_right = 91.0
+margin_right = 103.0
+margin_bottom = 14.0
+text = "(0,0,0)"
+
+[node name="Cell5" type="HSplitContainer" parent="GridContainer"]
+margin_top = 54.0
+margin_right = 103.0
+margin_bottom = 68.0
+
+[node name="CurrentPosition" type="Label" parent="GridContainer/Cell5"]
+margin_right = 51.0
+margin_bottom = 14.0
+text = "Current:"
+
+[node name="TargetVal" type="Label" parent="GridContainer/Cell5"]
+margin_left = 63.0
+margin_right = 103.0
 margin_bottom = 14.0
 text = "(0,0,0)"
 
 [node name="Cell4" type="HSplitContainer" parent="GridContainer"]
-margin_top = 54.0
-margin_right = 91.0
-margin_bottom = 68.0
+margin_top = 72.0
+margin_right = 103.0
+margin_bottom = 86.0
 
 [node name="State" type="Label" parent="GridContainer/Cell4"]
 margin_right = 36.0
@@ -126,11 +126,11 @@ text = "State:"
 
 [node name="Stateval" type="Label" parent="GridContainer/Cell4"]
 margin_left = 48.0
-margin_right = 91.0
+margin_right = 103.0
 margin_bottom = 14.0
 text = "(0,0,0)"
 
 [node name="DirectionalLight" type="DirectionalLight" parent="."]
-transform = Transform( -0.38137, 0.8154, 0.435522, 0.258129, -0.358457, 0.89715, 0.887652, 0.454567, -0.0737737, -26.5456, 26.8445, 0 )
+transform = Transform( -0.200708, 0.803342, -0.560677, 0.0683869, 0.582416, 0.810009, 0.977261, 0.124232, -0.171833, -26.5456, 26.8445, -5.81145e-07 )
 
 [node name="PlantParent" type="Spatial" parent="."]

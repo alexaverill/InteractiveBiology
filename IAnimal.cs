@@ -5,15 +5,27 @@ public enum Gender{
     Female
 };
 public enum AnimalState{
-    SearchForFood,
-    SearchForWater,
-    SearchForSex,
-    Eating,
-    Drinking,
     Exploring,
-    Sex,
-    Hide
+    Moving,
+    Arrived,
+    SearchForFood,
+    Search,
+    Eating
+    
 }
+// public enum AnimalState{
+//     SearchForFood,
+//     MovingToFood,
+//     SearchForWater,
+//     MovingToWater,
+//     SearchForSex,
+//     MovingToSex,
+//     Eating,
+//     Drinking,
+//     Exploring,
+//     Sex,
+//     Hide
+// }
 public  interface IAnimal: IFood
 {
      float Hunger{get; set;}
@@ -22,6 +34,7 @@ public  interface IAnimal: IFood
      AnimalState currentState {get;set;}
      Spatial targetRef { get; set;}
      Vector2 target {get;set;}
+     Vector2 mapPosition {get;set;}
      float vision {get;set;}
      //void FindNearestTarget();
      void eat();
