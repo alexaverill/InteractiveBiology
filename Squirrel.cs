@@ -3,12 +3,11 @@ using System;
 using System.Collections.Generic;
 public class Squirrel : RigidBody, IAnimal, IUpdatable
 {
-    public event Action died;
+    public event Action<IUpdatable> died;
     public float Hunger { get; set; }
     public float speed { get; set; }
     public Gender gender { get; set; }
     public AnimalState currentState { get; set; }
-    public Spatial targetRef { get; set; }
     public Vector2 target { get; set; }
     private bool hasTarget = false;
     public float vision { get; set; }
@@ -40,6 +39,11 @@ public class Squirrel : RigidBody, IAnimal, IUpdatable
             _health = value;
         }
     }
+
+        private bool eating = false;
+    private float hungerThreshold = 2; // value to start looking for food.
+    private int HungerFrameRate = 8;
+
     public void setBounds(Vector2 _bounds)
     {
         bounds = _bounds;
@@ -56,13 +60,12 @@ public class Squirrel : RigidBody, IAnimal, IUpdatable
 
     private void die()
     {
-        died?.Invoke();
+        died?.Invoke(this);
+    }
+    public void remove(){
         QueueFree();
     }
 
-    private bool eating = false;
-    private float hungerThreshold = 2; // value to start looking for food.
-    private int HungerFrameRate = 8;
     public override void _Ready()
     {
         speed = 3;
@@ -261,7 +264,7 @@ public class Squirrel : RigidBody, IAnimal, IUpdatable
                 GD.Print("Food Found at " + current);
                 target = current;
                 hasTarget = true;
-                break;
+                return;
             }
             foreach (var s in localMap.getNeighbors(current))
             {

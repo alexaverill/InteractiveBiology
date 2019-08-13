@@ -32,7 +32,6 @@ public  interface IAnimal: IFood
      float speed { get; set;}
      Gender gender { get; set;}
      AnimalState currentState {get;set;}
-     Spatial targetRef { get; set;}
      Vector2 target {get;set;}
      Vector2 mapPosition {get;set;}
      float vision {get;set;}

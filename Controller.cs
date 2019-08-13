@@ -16,6 +16,7 @@ public class Controller : Spatial
     private float timer;
 
     public List<IUpdatable> ListOfUpdatable = new List<IUpdatable>();
+    private List<IUpdatable> ToRemove = new List<IUpdatable>();//temp list to hold the dead things.
     public Dictionary<Vector2, Plant> plants = new Dictionary<Vector2, Plant>();
     Map currentMap;
     PackedScene plantPrefab;
@@ -45,10 +46,18 @@ public class Controller : Spatial
             s.setBounds(new Vector2(currentMap.Height*8.5f,currentMap.Width*8.5f));//max is 85 on both axis
             s.setPosition(x, x); 
             s.setMap(currentMap);
+            s.died += handleUpdatableDied;
             ListOfUpdatable.Add(s);
+            var stat = (StatsContainer)GetNode(StatsContainerPath);
+         stat.setAnimalReference(s);
         }
-        // var stat = (StatsContainer)GetNode(StatsContainerPath);
-        // stat.setAnimalReference(s);
+        //  var stat = (StatsContainer)GetNode(StatsContainerPath);
+        //  stat.setAnimalReference(s);
+    }
+
+    private void handleUpdatableDied(IUpdatable obj)
+    {
+        ToRemove.Add(obj);
     }
 
     private void PlaceFood(Vector2 vector2)
@@ -96,6 +105,12 @@ public class Controller : Spatial
         timer += delta;
         if (timer > updateSpeed)
         {
+            foreach(IUpdatable i in ToRemove){
+                
+                ListOfUpdatable.Remove(i);
+                i.remove();
+            }
+            ToRemove.Clear();
             foreach (IUpdatable u in ListOfUpdatable)
             {
                 u.update();
