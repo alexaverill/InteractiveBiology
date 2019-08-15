@@ -45,7 +45,7 @@ public class Squirrel : RigidBody, IAnimal, IUpdatable
 
     private bool eating = false;
     private float hungerThreshold = 3; // value to start looking for food.
-    private int HungerFrameRate = 16;
+    private int HungerFrameRate = 2;
 
     public void setBounds(Vector2 _bounds)
     {
@@ -92,7 +92,7 @@ public class Squirrel : RigidBody, IAnimal, IUpdatable
         float zPos = y * stepSize;
         this.SetTranslation(new Vector3(xPos, 3, zPos));
     }
-    Queue<Vector2> movements = new Queue<Vector2>();
+    Stack<Vector2> movements = new Stack<Vector2>();
     private int frameCount = 0;
     private bool finishedMove = true;
 
@@ -146,7 +146,7 @@ public class Squirrel : RigidBody, IAnimal, IUpdatable
 
             }
             findTarget();
-            generateMoves();
+            //generateMoves();
         }
 
     }
@@ -181,7 +181,7 @@ public class Squirrel : RigidBody, IAnimal, IUpdatable
         if (movements.Count > 0)
         {
             currentState = AnimalState.Moving;
-            Vector2 moveTo= movements.Dequeue();
+            Vector2 moveTo= movements.Pop();
             move(moveTo);
         }
         else
@@ -193,65 +193,25 @@ public class Squirrel : RigidBody, IAnimal, IUpdatable
     {
         //TODO implement some form of animation on this.
         SetTranslation(new Vector3(newPosition.x * stepSize, Transform.origin.y, newPosition.y * stepSize));
-    }
-    private void generateMoves()
-    {
-        // if(target==null) return;
-        int xDiff = (int)Math.Abs(target.x - mapPosition.x);
-        int yDiff = (int)Math.Abs(target.y - mapPosition.y);
-        if (target.x > mapPosition.x)
-        {
-            for (int x = 0; x < xDiff; x++)
-            {
-                movements.Enqueue("up");
-            }
-        }
-        else
-        {
-            for (int x = 0; x < xDiff; x++)
-            {
-                movements.Enqueue("down");
-            }
-        }
-        if (target.y > mapPosition.y)
-        {
-            for (int x = 0; x < yDiff; x++)
-            {
-                movements.Enqueue("right");
-            }
-        }
-        else
-        {
-
-            for (int x = 0; x < yDiff; x++)
-            {
-                movements.Enqueue("left");
-            }
-        }
-    }
-    private Vector2 RandomTarget()
-    {
-        System.Random rand = new System.Random();
-        int xVal = (int)((float)rand.NextDouble() * localMap.Height);
-        int yVal = (int)((float)rand.NextDouble() * localMap.Width);
-
-        return new Vector2(xVal, yVal);
+        mapPosition = newPosition;
     }
     private void findTarget()
     {
         if (currentState == AnimalState.Exploring)
         {
-            //pick random target;
-            target = RandomTarget();
-            hasTarget = true;
+            //pick random target at a slightly arbitraty distance;
+            System.Random rand = new System.Random();
+            int randDist = rand.Next(2,6);
+            BreadthSearchTarget(localMap.MapRepresentation,mapPosition, TileMap.ground,randDist);
+
         }
         else if (currentState == AnimalState.SearchForFood)
         {
-            BreadthSearchTarget(mapPosition, TileMap.food);
+            BreadthSearchTarget(localMap.FoodRepresentation,mapPosition, TileMap.food);
 
         }
     }
-    private void BreadthSearchTarget(Vector2 position, TileMap targetType)
+    private void BreadthSearchTarget(int[,] mapRepresentation,Vector2 position, TileMap targetType, int minDistance=0)
     {
         Queue<Vector2> edges = new Queue<Vector2>();
         edges.Enqueue(position);
@@ -261,10 +221,11 @@ public class Squirrel : RigidBody, IAnimal, IUpdatable
         // edges.Enqueue(position);
         // List<Vector2> visited = new List<Vector2>(); // need to change to a dict
         Vector2 current = new Vector2();
+        int count = 0;
         while (edges.Count > 0)
         {
             current = edges.Dequeue();
-            if (localMap.FoodRepresentation[(int)current.x, (int)current.y] == (int)targetType)
+            if (mapRepresentation[(int)current.x, (int)current.y] == (int)targetType && count >= minDistance)
             {
                 GD.Print("Food Found at " + current);
                 target = current;
@@ -275,55 +236,40 @@ public class Squirrel : RigidBody, IAnimal, IUpdatable
             {
                 if (!visited.ContainsKey(s))
                 {
-                    edges.Enqueue(s);
-                    visited[s] = current;
+                    //need to always reference teh physical map representation rather then the food representation
+                    //potentially want to have water in the food representation and simplify it down to a resource map on top of the terrain map.
+                    if(localMap.MapRepresentation[(int)s.x,(int)s.y] !=(int) TileMap.lake){ 
+                        edges.Enqueue(s);
+                        visited[s] = current;
+                    }
                 }
-                // if (!cameFrom.Contains(s))
-                // {
-                //     edges.Enqueue(s);
-                //     visited.AddAfter(current,s);
-                // }
             }
+            count ++;
         }
         if (hasTarget)
         {
             //generate movement list;
-            Queue<Vector2> path = new Queue<Vector2>();
+            Stack<Vector2> path = new Stack<Vector2>();
             Vector2 start = position;
 
             while (current != start)
             {
-                path.Enqueue(current);
+                path.Push(current);
                 current = visited[current];
             }
-
-            path = ReverseQueue(path);
-            foreach (Vector2 v in path)
-            {
-                GD.Print(v);
-            }
+            movements = path;
         }
         else
         {
             GD.Print("Yo I have no target");
+            //try to find a random target 
+            BreadthSearchTarget(localMap.MapRepresentation,position,TileMap.ground,4);
+            return;
         }
-        // target = RandomTarget();
-        // hasTarget = true;
-    }
-    //Queue.Reverse() doesnt seem to exist, something about LINQ and I am to lazy/tired to care enough to sort out why. 
-    private Queue<Vector2> ReverseQueue(Queue<Vector2> q)
-    {
-        Queue<Vector2> outQueue = new Queue<Vector2>();
-        for (int x = 0; x < q.Count; x++)
-        {
-            outQueue.Enqueue(q.Dequeue());
-        }
-        return outQueue;
-
     }
     public void eat()
     {
-        GD.Print("I am eating");
+        //GD.Print("I am eating");
         eating = true;
         //get a reference to current food;
         Plant currentFood = (Plant)controller.GetPlant(mapPosition);
