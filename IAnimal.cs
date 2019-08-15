@@ -29,6 +29,7 @@ public enum AnimalState{
 public  interface IAnimal: IFood
 {
      float Hunger{get; set;}
+     float Thirst{get;set;}
      float speed { get; set;}
      Gender gender { get; set;}
      AnimalState currentState {get;set;}

@@ -40,9 +40,12 @@ public class Squirrel : RigidBody, IAnimal, IUpdatable
         }
     }
 
-        private bool eating = false;
-    private float hungerThreshold = 2; // value to start looking for food.
-    private int HungerFrameRate = 8;
+    int ThirstFrameRate = 4;
+    public float Thirst { get; set; }
+
+    private bool eating = false;
+    private float hungerThreshold = 3; // value to start looking for food.
+    private int HungerFrameRate = 16;
 
     public void setBounds(Vector2 _bounds)
     {
@@ -62,7 +65,8 @@ public class Squirrel : RigidBody, IAnimal, IUpdatable
     {
         died?.Invoke(this);
     }
-    public void remove(){
+    public void remove()
+    {
         QueueFree();
     }
 
@@ -88,7 +92,7 @@ public class Squirrel : RigidBody, IAnimal, IUpdatable
         float zPos = y * stepSize;
         this.SetTranslation(new Vector3(xPos, 3, zPos));
     }
-    Queue<string> movements = new Queue<string>();
+    Queue<Vector2> movements = new Queue<Vector2>();
     private int frameCount = 0;
     private bool finishedMove = true;
 
@@ -116,20 +120,28 @@ public class Squirrel : RigidBody, IAnimal, IUpdatable
 
     private void CheckState()
     {
-        if(currentState == AnimalState.Moving){
+        if (currentState == AnimalState.Moving)
+        {
             //we continue to move
             return;
         }
-        if(currentState == AnimalState.Arrived || currentState == AnimalState.Eating){
+        if (currentState == AnimalState.Arrived || currentState == AnimalState.Eating)
+        {
             //do we eat or do we explore essentially.
-            if(Hunger > hungerThreshold-1 ){
-                if(IsAtFood()){
+            if (Hunger > hungerThreshold - 1)
+            {
+                if (IsAtFood())
+                {
                     currentState = AnimalState.Eating;
                     return;
-                }else{
+                }
+                else
+                {
                     currentState = AnimalState.SearchForFood;
                 }
-            }else{
+            }
+            else
+            {
                 currentState = AnimalState.Exploring;
 
             }
@@ -141,7 +153,8 @@ public class Squirrel : RigidBody, IAnimal, IUpdatable
 
     private bool IsAtFood()
     {
-        if(localMap.FoodRepresentation[(int)mapPosition.x,(int)mapPosition.y] == (int)TileMap.food){
+        if (localMap.FoodRepresentation[(int)mapPosition.x, (int)mapPosition.y] == (int)TileMap.food)
+        {
             return true;
         }
         return false;
@@ -153,7 +166,12 @@ public class Squirrel : RigidBody, IAnimal, IUpdatable
         {
             Hunger++;
         }
-        if(Hunger > (hungerThreshold*2)){
+        if (frameCount % ThirstFrameRate == 0)
+        {
+            Thirst++;
+        }
+        if (Hunger > (hungerThreshold * 4))
+        {
             health--;
         }
         //TODO Implement thirst.
@@ -163,35 +181,18 @@ public class Squirrel : RigidBody, IAnimal, IUpdatable
         if (movements.Count > 0)
         {
             currentState = AnimalState.Moving;
-            string movement = movements.Dequeue();
-            switch (movement)
-            {
-                case "right":
-                    _mapPosition.y++;
-                    break;
-                case "left":
-                    _mapPosition.y--;
-                    break;
-                case "up":
-                    _mapPosition.x++;
-                    break;
-                case "down":
-                    _mapPosition.x--;
-                    break;
-                default:
-                    break;
-            }
-            move();
+            Vector2 moveTo= movements.Dequeue();
+            move(moveTo);
         }
         else
         {
             currentState = AnimalState.Arrived;
         }
     }
-    private void move()
+    private void move(Vector2 newPosition)
     {
         //TODO implement some form of animation on this.
-        SetTranslation(new Vector3(mapPosition.x * stepSize, Transform.origin.y, mapPosition.y * stepSize));
+        SetTranslation(new Vector3(newPosition.x * stepSize, Transform.origin.y, newPosition.y * stepSize));
     }
     private void generateMoves()
     {
@@ -228,55 +229,97 @@ public class Squirrel : RigidBody, IAnimal, IUpdatable
             }
         }
     }
-    private Vector2 RandomTarget(){
-            System.Random rand = new System.Random();
-            int xVal = (int)((float)rand.NextDouble() * localMap.Height);
-            int yVal = (int)((float)rand.NextDouble() * localMap.Width);
+    private Vector2 RandomTarget()
+    {
+        System.Random rand = new System.Random();
+        int xVal = (int)((float)rand.NextDouble() * localMap.Height);
+        int yVal = (int)((float)rand.NextDouble() * localMap.Width);
 
-            return new Vector2(xVal, yVal);
+        return new Vector2(xVal, yVal);
     }
     private void findTarget()
     {
-        // target = new Vector2(0,0);
         if (currentState == AnimalState.Exploring)
         {
             //pick random target;
-            target= RandomTarget();
+            target = RandomTarget();
             hasTarget = true;
         }
         else if (currentState == AnimalState.SearchForFood)
         {
             BreadthSearchTarget(mapPosition, TileMap.food);
-            
+
         }
     }
     private void BreadthSearchTarget(Vector2 position, TileMap targetType)
     {
         Queue<Vector2> edges = new Queue<Vector2>();
         edges.Enqueue(position);
-        List<Vector2> visited = new List<Vector2>(); // need to change to a dict
+        Dictionary<Vector2, Vector2> visited = new Dictionary<Vector2, Vector2>();
 
+        // Queue<Vector2> edges = new Queue<Vector2>();
+        // edges.Enqueue(position);
+        // List<Vector2> visited = new List<Vector2>(); // need to change to a dict
+        Vector2 current = new Vector2();
         while (edges.Count > 0)
         {
-            Vector2 current = edges.Dequeue();
+            current = edges.Dequeue();
             if (localMap.FoodRepresentation[(int)current.x, (int)current.y] == (int)targetType)
             {
                 GD.Print("Food Found at " + current);
                 target = current;
                 hasTarget = true;
-                return;
+                break;
             }
             foreach (var s in localMap.getNeighbors(current))
             {
-                if (!visited.Contains(s))
+                if (!visited.ContainsKey(s))
                 {
                     edges.Enqueue(s);
-                    visited.Add(s);
+                    visited[s] = current;
                 }
+                // if (!cameFrom.Contains(s))
+                // {
+                //     edges.Enqueue(s);
+                //     visited.AddAfter(current,s);
+                // }
             }
         }
-        target= RandomTarget();
-        hasTarget = true;
+        if (hasTarget)
+        {
+            //generate movement list;
+            Queue<Vector2> path = new Queue<Vector2>();
+            Vector2 start = position;
+
+            while (current != start)
+            {
+                path.Enqueue(current);
+                current = visited[current];
+            }
+
+            path = ReverseQueue(path);
+            foreach (Vector2 v in path)
+            {
+                GD.Print(v);
+            }
+        }
+        else
+        {
+            GD.Print("Yo I have no target");
+        }
+        // target = RandomTarget();
+        // hasTarget = true;
+    }
+    //Queue.Reverse() doesnt seem to exist, something about LINQ and I am to lazy/tired to care enough to sort out why. 
+    private Queue<Vector2> ReverseQueue(Queue<Vector2> q)
+    {
+        Queue<Vector2> outQueue = new Queue<Vector2>();
+        for (int x = 0; x < q.Count; x++)
+        {
+            outQueue.Enqueue(q.Dequeue());
+        }
+        return outQueue;
+
     }
     public void eat()
     {
@@ -295,19 +338,22 @@ public class Squirrel : RigidBody, IAnimal, IUpdatable
         if (foodVal > 0)
         {
             //if we have food to eat, eat until I am not hungy.
-            if(Hunger >0){ 
+            if (Hunger > 0)
+            {
                 Hunger -= foodVal;
-            }else{
+            }
+            else
+            {
                 CheckState();
             }
         }
         else
         {
             eating = false;
-            GD.Print("Food is completely eaten. Time to change state");  
+            GD.Print("Food is completely eaten. Time to change state");
             CheckState();
         }
-        
+
     }
 
     public void drink()

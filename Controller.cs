@@ -43,7 +43,7 @@ public class Controller : Spatial
             var s = (Squirrel)node;
             s.registerController(this);
             s.setStepSize(8.5f);
-            s.setBounds(new Vector2(currentMap.Height*8.5f,currentMap.Width*8.5f));//max is 85 on both axis
+            s.setBounds(new Vector2(currentMap.PhysicalHeightBounds,currentMap.PhysicalWidthBounds));
             s.setPosition(x, x); 
             s.setMap(currentMap);
             s.died += handleUpdatableDied;

@@ -14,13 +14,24 @@ public enum TileMap{
 }
 public class Map{
     public event Action<Vector2> foodCreated;
+    private float heightFactor = 8.5f; // value of the "physical" grid square essentially.
     private int _height;
     public int Height{
         get{ return _height;}
+        private set{
+            _height = value;
+            PhysicalHeightBounds = _height * heightFactor;
+        }
     }
+    public float PhysicalHeightBounds{ get; private set;} 
+    public float PhysicalWidthBounds{get;private set;}
     private int _width;
     public int Width{
         get{return _width;}
+        private set{
+            _width = value;
+            PhysicalWidthBounds = _width * heightFactor;
+        }
     }
     private float foodPercentage;
     private int[,] currentMap;
@@ -33,11 +44,11 @@ public class Map{
     }
     System.Random rand = new System.Random();
     public Map(int width, int height, int _foodPercentage){
-        _width = width;
-        _height = height;
+        Width = width;
+        Height = height;
         foodPercentage = _foodPercentage/100; //convert to normalized value between 0 and 1;
-        currentMap = new int[_height,_width];
-        foodMap = new int[_height,_width];
+        currentMap = new int[Height,Width];
+        foodMap = new int[Height,Width];
         generateBaseLevel();
     }
     public List<Vector2> getNeighbors(Vector2 position){
@@ -68,11 +79,9 @@ public class Map{
         for(int x=0; x<Height; x++){
             for(int y=0; y<Width; y++){
                 currentMap[x,y] =(int)TileMap.ground;
-                // if(rand.NextDouble()>.95){ //TODO convert to configurable value
-                //     currentMap[x,y] = (int)TileMap.lake;
-                // }else{
-                //     currentMap[x,y] =(int)TileMap.ground;
-                // }
+                if(rand.NextDouble()>.98){ //TODO convert to configurable value
+                    currentMap[x,y] = (int)TileMap.lake;
+                }
             }
         }
     }
