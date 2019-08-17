@@ -1,4 +1,4 @@
-[gd_scene load_steps=4 format=2]
+[gd_scene load_steps=5 format=2]
 
 [ext_resource path="res://Squirrel.cs" type="Script" id=1]
 
@@ -6,10 +6,18 @@
 radius = 1.17785
 height = 3.13009
 
-[sub_resource type="CapsuleMesh" id=2]
+[sub_resource type="SpatialMaterial" id=2]
+render_priority = 1
+flags_vertex_lighting = true
+vertex_color_use_as_albedo = true
+albedo_color = Color( 0.368627, 0.192157, 0.192157, 1 )
+normal_enabled = true
+normal_scale = 1.0
+
+[sub_resource type="CapsuleMesh" id=3]
+material = SubResource( 2 )
 
 [node name="Squirrel" type="RigidBody"]
-editor/display_folded = true
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4, 0 )
 mode = 2
 script = ExtResource( 1 )
@@ -18,4 +26,4 @@ script = ExtResource( 1 )
 shape = SubResource( 1 )
 
 [node name="CSGMesh" type="CSGMesh" parent="."]
-mesh = SubResource( 2 )
+mesh = SubResource( 3 )
