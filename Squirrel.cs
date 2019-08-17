@@ -40,12 +40,17 @@ public class Squirrel : RigidBody, IAnimal, IUpdatable
         }
     }
 
-    int ThirstFrameRate = 4;
+    Stack<Vector2> movements = new Stack<Vector2>();
+    private int frameCount = 0;
+    private bool finishedMove = true;
+    private int thirstThreshold = 9;
+    int ThirstFrameRate = 6;
     public float Thirst { get; set; }
 
     private bool eating = false;
-    private float hungerThreshold = 3; // value to start looking for food.
-    private int HungerFrameRate = 2;
+    private float hungerThreshold = 15; // value to start looking for food.
+    private int HungerFrameRate = 16;
+    private int healthFrameRate = 10;
 
     public void setBounds(Vector2 _bounds)
     {
@@ -69,7 +74,7 @@ public class Squirrel : RigidBody, IAnimal, IUpdatable
     {
         QueueFree();
     }
-
+System.Random rand = new System.Random();
     public override void _Ready()
     {
         speed = 3;
@@ -90,18 +95,15 @@ public class Squirrel : RigidBody, IAnimal, IUpdatable
         mapPosition = new Vector2(x, y);
         float xPos = x * stepSize;
         float zPos = y * stepSize;
-        this.SetTranslation(new Vector3(xPos, 3, zPos));
+        this.SetTranslation(new Vector3(xPos, 3.5f, zPos));
     }
-    Stack<Vector2> movements = new Stack<Vector2>();
-    private int frameCount = 0;
-    private bool finishedMove = true;
 
     public void update()
     {
         //Update Loop
         //1. Increment hunger and thirst.
         //2. Check state to ensure that hunger and thirst are taken care of.
-        //3. Set target based on state. State chance should reset hasTarget to false/
+        //3. Set target based on state. 
         //4. Move towards target. 
 
         UpdateHungerThirst();//update hunger and Thirst 
@@ -109,6 +111,10 @@ public class Squirrel : RigidBody, IAnimal, IUpdatable
         if (currentState == AnimalState.Eating)
         {
             eat();
+        }
+        else if (currentState == AnimalState.Drinking)
+        {
+            drink();
         }
         else
         {
@@ -125,10 +131,24 @@ public class Squirrel : RigidBody, IAnimal, IUpdatable
             //we continue to move
             return;
         }
-        if (currentState == AnimalState.Arrived || currentState == AnimalState.Eating)
+        if (currentState == AnimalState.Arrived || currentState == AnimalState.Eating || currentState == AnimalState.Drinking)
         {
             //do we eat or do we explore essentially.
-            if (Hunger > hungerThreshold - 1)
+            if (Thirst > thirstThreshold-1)
+            {
+                if (isAtWater())
+                {
+                    currentState = AnimalState.Drinking;
+                    return; // early return to ignore find target calls
+                }
+                else
+                {
+                   // GD.Print("Time to look for Water");
+                    currentState = AnimalState.SearchForWater;
+                }
+
+            }
+            else if (Hunger > hungerThreshold - 1)
             {
                 if (IsAtFood())
                 {
@@ -160,6 +180,15 @@ public class Squirrel : RigidBody, IAnimal, IUpdatable
         return false;
     }
 
+    private bool isAtWater()
+    {
+        if (localMap.MapRepresentation[(int)mapPosition.x, (int)mapPosition.y] == (int)TileMap.lake)
+        {
+            return true;
+        }
+        return false;
+    }
+
     private void UpdateHungerThirst()
     {
         if (frameCount % HungerFrameRate == 0)
@@ -170,18 +199,19 @@ public class Squirrel : RigidBody, IAnimal, IUpdatable
         {
             Thirst++;
         }
-        if (Hunger > (hungerThreshold * 4))
+        if (
+            (Hunger > (hungerThreshold * 4)) || (Thirst > (thirstThreshold * 4))
+            && frameCount % healthFrameRate == 0)
         {
             health--;
         }
-        //TODO Implement thirst.
     }
     private void Move()
     {
         if (movements.Count > 0)
         {
             currentState = AnimalState.Moving;
-            Vector2 moveTo= movements.Pop();
+            Vector2 moveTo = movements.Pop();
             move(moveTo);
         }
         else
@@ -197,29 +227,28 @@ public class Squirrel : RigidBody, IAnimal, IUpdatable
     }
     private void findTarget()
     {
-        if (currentState == AnimalState.Exploring)
+        switch (currentState)
         {
-            //pick random target at a slightly arbitraty distance;
-            System.Random rand = new System.Random();
-            int randDist = rand.Next(2,6);
-            BreadthSearchTarget(localMap.MapRepresentation,mapPosition, TileMap.ground,randDist);
-
-        }
-        else if (currentState == AnimalState.SearchForFood)
-        {
-            BreadthSearchTarget(localMap.FoodRepresentation,mapPosition, TileMap.food);
-
+            case AnimalState.Exploring:
+                
+                int randDist = rand.Next(2, 6);
+                BreadthSearchTarget(localMap.MapRepresentation, mapPosition, TileMap.ground, randDist);
+                break;
+            case AnimalState.SearchForFood:
+                BreadthSearchTarget(localMap.FoodRepresentation, mapPosition, TileMap.food);
+                break;
+            case AnimalState.SearchForWater:
+                BreadthSearchTarget(localMap.MapRepresentation, mapPosition, TileMap.lake);
+                break;
+            default:
+                break;
         }
     }
-    private void BreadthSearchTarget(int[,] mapRepresentation,Vector2 position, TileMap targetType, int minDistance=0)
+    private void BreadthSearchTarget(int[,] mapRepresentation, Vector2 position, TileMap targetType, int minDistance = 0)
     {
         Queue<Vector2> edges = new Queue<Vector2>();
         edges.Enqueue(position);
         Dictionary<Vector2, Vector2> visited = new Dictionary<Vector2, Vector2>();
-
-        // Queue<Vector2> edges = new Queue<Vector2>();
-        // edges.Enqueue(position);
-        // List<Vector2> visited = new List<Vector2>(); // need to change to a dict
         Vector2 current = new Vector2();
         int count = 0;
         while (edges.Count > 0)
@@ -227,7 +256,7 @@ public class Squirrel : RigidBody, IAnimal, IUpdatable
             current = edges.Dequeue();
             if (mapRepresentation[(int)current.x, (int)current.y] == (int)targetType && count >= minDistance)
             {
-                GD.Print("Food Found at " + current);
+                //GD.Print(targetType+" Found at " + current);
                 target = current;
                 hasTarget = true;
                 break;
@@ -236,15 +265,24 @@ public class Squirrel : RigidBody, IAnimal, IUpdatable
             {
                 if (!visited.ContainsKey(s))
                 {
-                    //need to always reference teh physical map representation rather then the food representation
+                    //need to always reference the physical map representation rather then the food representation
                     //potentially want to have water in the food representation and simplify it down to a resource map on top of the terrain map.
-                    if(localMap.MapRepresentation[(int)s.x,(int)s.y] !=(int) TileMap.lake){ 
+                    if (targetType != TileMap.lake)
+                    {
+                        if (localMap.MapRepresentation[(int)s.x, (int)s.y] != (int)TileMap.lake)
+                        {
+                            edges.Enqueue(s);
+                            visited[s] = current;
+                        }
+                    }
+                    else
+                    {
                         edges.Enqueue(s);
                         visited[s] = current;
                     }
                 }
             }
-            count ++;
+            count++;
         }
         if (hasTarget)
         {
@@ -263,7 +301,7 @@ public class Squirrel : RigidBody, IAnimal, IUpdatable
         {
             GD.Print("Yo I have no target");
             //try to find a random target 
-            BreadthSearchTarget(localMap.MapRepresentation,position,TileMap.ground,4);
+            BreadthSearchTarget(localMap.MapRepresentation, position, TileMap.ground, 4);
             return;
         }
     }
@@ -296,7 +334,6 @@ public class Squirrel : RigidBody, IAnimal, IUpdatable
         else
         {
             eating = false;
-            GD.Print("Food is completely eaten. Time to change state");
             CheckState();
         }
 
@@ -304,7 +341,16 @@ public class Squirrel : RigidBody, IAnimal, IUpdatable
 
     public void drink()
     {
-        throw new NotImplementedException();
+
+        if (Thirst > 0)
+        {
+            Thirst -= 1;
+        }
+        else
+        {
+            CheckState();
+        }
+
     }
 
     public int getEaten()

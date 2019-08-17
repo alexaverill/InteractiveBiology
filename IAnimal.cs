@@ -9,23 +9,12 @@ public enum AnimalState{
     Moving,
     Arrived,
     SearchForFood,
+    SearchForWater,
     Search,
-    Eating
+    Eating,
+    Drinking
     
 }
-// public enum AnimalState{
-//     SearchForFood,
-//     MovingToFood,
-//     SearchForWater,
-//     MovingToWater,
-//     SearchForSex,
-//     MovingToSex,
-//     Eating,
-//     Drinking,
-//     Exploring,
-//     Sex,
-//     Hide
-// }
 public  interface IAnimal: IFood
 {
      float Hunger{get; set;}
@@ -36,7 +25,6 @@ public  interface IAnimal: IFood
      Vector2 target {get;set;}
      Vector2 mapPosition {get;set;}
      float vision {get;set;}
-     //void FindNearestTarget();
      void eat();
      void drink();
 }
