@@ -1,7 +1,16 @@
-[gd_resource type="Environment" format=2]
+[gd_resource type="Environment" load_steps=3 format=2]
+
+[ext_resource path="res://Textures/Skies/symmetrical_garden_1k.hdr" type="Texture" id=1]
+
+[sub_resource type="PanoramaSky" id=1]
+panorama = ExtResource( 1 )
 
 [resource]
-background_mode = 1
-background_color = Color( 0.207843, 0.207843, 0.207843, 1 )
-ambient_light_color = Color( 0.760784, 0.670588, 0.670588, 1 )
+background_mode = 3
+background_sky = SubResource( 1 )
+background_color = Color( 0.235294, 0.235294, 0.235294, 1 )
+ambient_light_color = Color( 0.443137, 0.643137, 0.427451, 1 )
+ambient_light_sky_contribution = 0.84
+tonemap_mode = 3
+tonemap_white = 6.0
 adjustment_enabled = true

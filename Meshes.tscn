@@ -46,8 +46,8 @@ points = PoolVector3Array( -1.01663, 0, -0.58695, -1.01663, 0, 0.58695, 0, 0, -1
 environment = SubResource( 1 )
 
 [node name="ground" type="MeshInstance" parent="."]
-editor/display_folded = true
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -2.77613, 0.0287209, -4.9272 )
+use_in_baked_light = true
 mesh = ExtResource( 1 )
 material/0 = null
 material/1 = null
@@ -58,8 +58,8 @@ material/1 = null
 shape = SubResource( 2 )
 
 [node name="ground_river" type="MeshInstance" parent="."]
-editor/display_folded = true
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 7.52901, 6.58804, -16.7918 )
+use_in_baked_light = true
 mesh = ExtResource( 2 )
 material/0 = null
 material/1 = null
@@ -73,6 +73,7 @@ shape = SubResource( 3 )
 [node name="ground_river_one_edge" type="MeshInstance" parent="."]
 editor/display_folded = true
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -21.0807, 0.57682, -15.8955 )
+use_in_baked_light = true
 mesh = ExtResource( 3 )
 material/0 = null
 material/1 = null
@@ -86,6 +87,7 @@ shape = SubResource( 4 )
 [node name="ground_water" type="MeshInstance" parent="."]
 editor/display_folded = true
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -26.4237, 10.5269, 4.75572 )
+use_in_baked_light = true
 mesh = ExtResource( 4 )
 material/0 = null
 material/1 = null
@@ -109,8 +111,8 @@ material/2 = null
 shape = SubResource( 6 )
 
 [node name="ground_pool" type="MeshInstance" parent="."]
-editor/display_folded = true
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -20.883, -4.90871, 0.290319 )
+use_in_baked_light = true
 mesh = ExtResource( 6 )
 material/0 = null
 material/1 = null
@@ -124,6 +126,7 @@ shape = SubResource( 7 )
 [node name="ground_river_end" type="MeshInstance" parent="."]
 editor/display_folded = true
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -27.1451, -5.06337, 25.0175 )
+use_in_baked_light = true
 mesh = ExtResource( 7 )
 material/0 = null
 material/1 = null
@@ -137,6 +140,7 @@ shape = SubResource( 8 )
 [node name="ground_river_edge_corner" type="MeshInstance" parent="."]
 editor/display_folded = true
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -17.304, 9.17596, -24.4256 )
+use_in_baked_light = true
 mesh = ExtResource( 8 )
 material/0 = null
 material/1 = null
@@ -150,6 +154,7 @@ shape = SubResource( 9 )
 [node name="pumpkin" type="MeshInstance" parent="."]
 editor/display_folded = true
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -33.9367, 21.7006, 15.5393 )
+use_in_baked_light = true
 mesh = ExtResource( 9 )
 material/0 = null
 material/1 = null

@@ -29,11 +29,12 @@ mesh_library = ExtResource( 3 )
 cell_size = Vector3( 3, 3, 3 )
 cell_center_x = false
 data = {
-"cells": PoolIntArray(  )
+"cells": PoolIntArray( 262129, 0, 536870912, 262132, 0, 0, 262135, 0, 0, 262138, 0, 536870912, 262141, 0, 0, 262129, 3, 0, 262132, 3, 536870912 )
 }
 script = ExtResource( 4 )
 __meta__ = {
-"_editor_clip_": 0
+"_editor_clip_": 0,
+"_editor_floor_": Vector3( 0, 3, 0 )
 }
 
 [node name="Camera" type="Camera" parent="."]
@@ -155,7 +156,9 @@ margin_bottom = 14.0
 text = "(0,0,0)"
 
 [node name="DirectionalLight" type="DirectionalLight" parent="."]
-transform = Transform( -0.385671, -0.630632, -0.67347, 0.163123, -0.765048, 0.622971, -0.908102, 0.130403, 0.397927, -26.5456, 26.8445, -5.81145e-07 )
+transform = Transform( -0.610335, -0.261534, -0.747725, -0.788169, 0.294938, 0.540186, 0.0792557, 0.919028, -0.386144, -26.5456, 38.8836, -19.7857 )
+light_color = Color( 0.996078, 1, 0.92549, 1 )
+shadow_enabled = true
 
 [node name="PlantParent" type="Spatial" parent="."]
 
